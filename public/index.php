@@ -14,39 +14,48 @@ $events = $events->getEventsBetweenByDay($start, $end);
 render('header')
 ?>
 
-<div class="d-flex flex-row align-items-center justify-content-between">
-    <h1><?= $month->toString(); ?></h1>
-    <div class="mr-3">
-        <a href="/?month=<?= $month->previousMonth()->month ?>&year=<?= $month->previousMonth()->year ?>"
-           class="btn btn-primary">&lt;</a>
-        <a href="/?month=<?= $month->nextMonth()->month ?>&year=<?= $month->nextMonth()->year ?>"
-           class="btn btn-primary">&gt;</a>
-    </div>
-</div>
+<div class="calendar">
 
-<table class="calendar__table calendar__table--<?= $weeks; ?>weeks">
-    <?php for ($i = 0; $i < $weeks; ++$i): ?>
-        <tr>
-            <?php
-            foreach ($month->days as $k => $day):
-                $date = (clone $last_monday)->modify("+" . ($k + $i * 7) . " days");
-                $eventsForDay = $events[$date->format('Y-m-d')] ?? [];
-                ?>
-                <td<?= $month->withinMonth($date) ? '' : ' class="calendar__othermonth"' ?>>
-                    <?php if ($i === 0): ?>
-                        <div class="calendar__weekday"><?= $day; ?></div>
-                    <?php endif; ?>
-                    <div class="calendar__day"><?= $date->format('d'); ?></div>
-                    <?php foreach ($eventsForDay as $event): ?>
-                    <div class="calendar__event">
-                        <?= (new DateTime($event['started_at']))->format('H:i') ?> -
-                        <a href="/event.php?id=<?= $event['id'] ?>"><?= h($event['name']) ?></a>
-                    </div>
-                    <?php endforeach; ?>
-                </td>
-            <?php endforeach; ?>
-        </tr>
-    <?php endfor; ?>
-</table>
+    <?php if (isset($_GET['success'])): ?>
+    <div class="alert alert-success">Event successfully created.</div>
+    <?php endif; ?>
+
+    <div class="d-flex flex-row align-items-center justify-content-between">
+        <h1><?= $month->toString(); ?></h1>
+        <div class="mr-3">
+            <a href="/?month=<?= $month->previousMonth()->month ?>&year=<?= $month->previousMonth()->year ?>"
+               class="btn btn-primary">&lt;</a>
+            <a href="/?month=<?= $month->nextMonth()->month ?>&year=<?= $month->nextMonth()->year ?>"
+               class="btn btn-primary">&gt;</a>
+        </div>
+    </div>
+
+    <table class="calendar__table calendar__table--<?= $weeks; ?>weeks">
+        <?php for ($i = 0; $i < $weeks; ++$i): ?>
+            <tr>
+                <?php
+                foreach ($month->days as $k => $day):
+                    $date = (clone $last_monday)->modify("+" . ($k + $i * 7) . " days");
+                    $eventsForDay = $events[$date->format('Y-m-d')] ?? [];
+                    ?>
+                    <td<?= $month->withinMonth($date) ? '' : ' class="calendar__othermonth"' ?>>
+                        <?php if ($i === 0): ?>
+                            <div class="calendar__weekday"><?= $day; ?></div>
+                        <?php endif; ?>
+                        <div class="calendar__day"><?= $date->format('d'); ?></div>
+                        <?php foreach ($eventsForDay as $event): ?>
+                            <div class="calendar__event">
+                                <?= (new DateTime($event['started_at']))->format('H:i') ?> -
+                                <a href="/event.php?id=<?= $event['id'] ?>"><?= h($event['name']) ?></a>
+                            </div>
+                        <?php endforeach; ?>
+                    </td>
+                <?php endforeach; ?>
+            </tr>
+        <?php endfor; ?>
+    </table>
+
+    <a href="/add.php" class="calendar__button">+</a>
+</div>
 
 <?php require '../views/footer.php' ?>

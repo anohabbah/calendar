@@ -42,7 +42,7 @@ class Event
     /**
      * @param mixed $ended_at
      */
-    public function setEndedAt(\DateTime $ended_at): void
+    public function setEndedAt(string $ended_at): void
     {
         $this->ended_at = $ended_at;
     }
@@ -58,7 +58,7 @@ class Event
     /**
      * @param mixed $started_at
      */
-    public function setStartedAt(\DateTime $started_at): void
+    public function setStartedAt(string $started_at): void
     {
         $this->started_at = $started_at;
     }
@@ -111,4 +111,13 @@ class Event
         $this->id = $id;
     }
 
+    public function toArray()
+    {
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+            'started_at' => $this->getStartedAt()->format('Y-m-d H:i:s'),
+            'ended_at' => $this->getEndedAt()->format('Y-m-d H:i:s')
+        ];
+    }
 }

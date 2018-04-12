@@ -70,7 +70,7 @@ class Events
      */
     public function find(int $id): Event
     {
-        $stmt =  $this->pdo->query("SELECT * FROM events WHERE id = {$id}");
+        $stmt = $this->pdo->query("SELECT * FROM events WHERE id = {$id}");
         $stmt->setFetchMode(\PDO::FETCH_CLASS, Event::class);
 
         $result = $stmt->fetch();
@@ -79,5 +79,11 @@ class Events
         }
 
         return $result;
+    }
+
+    public function create(Event $event): bool
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO events(name, description, started_at, ended_at) VALUES (:name, :description, :started_at, :ended_at)');
+        return $stmt->execute($event->toArray());
     }
 }
