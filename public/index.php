@@ -1,18 +1,17 @@
 
 <?php
 require '../src/bootstrap.php';
-require '../src/Calendar/Month.php';
-require '../src/Calendar/Event.php';
+
 $month = new Calendar\Month($_GET['month'] ?? null, $_GET['year'] ?? null);
 $pdo = get_pdo();
-$events = new \Calendar\Event($pdo);
+$events = new \Calendar\Events($pdo);
 $start = $month->getStartingDay();
 $weeks = $month->getWeeks();
 $last_monday = $start->format('N') === '1' ? $start : $start->modify("last monday");
 $end = (clone $start)->modify('+'. (6 + 7 * ($weeks - 1)) . ' days');
 $events = $events->getEventsBetweenByDay($start, $end);
 
-require '../views/header.php'
+render('header')
 ?>
 
 <div class="d-flex flex-row align-items-center justify-content-between">
@@ -40,7 +39,8 @@ require '../views/header.php'
                     <div class="calendar__day"><?= $date->format('d'); ?></div>
                     <?php foreach ($eventsForDay as $event): ?>
                     <div class="calendar__event">
-                        <?= (new DateTime($event['started_at']))->format('H:i') ?> - <a href="/event.php?id=<?= $event['id'] ?>"><?= $event['name'] ?></a>
+                        <?= (new DateTime($event['started_at']))->format('H:i') ?> -
+                        <a href="/event.php?id=<?= $event['id'] ?>"><?= h($event['name']) ?></a>
                     </div>
                     <?php endforeach; ?>
                 </td>

@@ -1,17 +1,30 @@
 
 <?php
 require '../src/bootstrap.php';
-require '../src/Calendar/Event.php';
 
 if (! isset($_GET['id']))
     header('Location: 404.php');
 
 $pdo = get_pdo();
-$event = new \Calendar\Event($pdo);
-$event = $event->find($_GET['id']);
+$model = new \Calendar\Events($pdo);
+try {
+    /** @var \Calendar\Event $event */
+    $event = $model->find($_GET['id']);
+} catch (Exception $e) {
+    e404();
+}
 
-require '../views/header.php'
+render('header', ['title' => $event->getName()])
 ?>
 
+<div class="container-event">
+    <h1 class="name"><?=  h($event->getName()); ?></h1>
+    <ul class="details">
+        <li>Date: <?= $event->getStartedAt()->format('d/m/Y'); ?></li>
+        <li>Heure de debut: <?= $event->getStartedAt()->format('H:i'); ?></li>
+        <li>Heure de fin: <?= $event->getEndedAt()->format('H:i'); ?></li>
+    </ul>
+    <p class="desc"><?= h($event->getDescription()); ?></p>
+</div>
 
 <?php require '../views/footer.php' ?>

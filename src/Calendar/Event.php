@@ -1,9 +1,19 @@
 <?php
+
 /**
- * Created by IntelliJ IDEA.
- * User: dropbird
- * Date: 12/04/2018
- * Time: 10:53
+ * Copyright 2017 - Abbah Anoh
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+ * documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+ * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+ * OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 namespace Calendar;
@@ -11,64 +21,94 @@ namespace Calendar;
 
 class Event
 {
+    private $id;
+
+    private $name;
+
+    private $description;
+
+    private $started_at;
+
+    private $ended_at;
 
     /**
-     * @var \PDO
+     * @return mixed
      */
-    private $pdo;
-
-    public function __construct(\PDO $pdo)
+    public function getEndedAt(): \DateTime
     {
-        $this->pdo = $pdo;
+        return new \DateTime($this->ended_at);
     }
 
     /**
-     * Recupère tous les evenements entre 2 dates.
-     *
-     * @param \DateTime $sart date de debut
-     * @param \DateTime $end date de fin
-     * @return array Un tabeau representant l'ensemble des evenements.
+     * @param mixed $ended_at
      */
-    public function getEventsBetween(\DateTime $sart, \DateTime $end): array
+    public function setEndedAt(\DateTime $ended_at): void
     {
-        $sql = "SELECT * FROM events WHERE started_at BETWEEN '{$sart->format('Y-m-d 00:00:00')}' AND '{$end->format('Y-m-d 23:59:59')}'";
-        $stmt = $this->pdo->query($sql);
-
-        return $stmt->fetchAll();
+        $this->ended_at = $ended_at;
     }
 
     /**
-     * Recupère tous les evenements entre 2 dates formaté par jour..
-     *
-     * @param \DateTime $sart
-     * @param \DateTime $end
-     * @return array
+     * @return mixed
      */
-    public function getEventsBetweenByDay(\DateTime $sart, \DateTime $end): array
+    public function getStartedAt(): \DateTime
     {
-        $events = $this->getEventsBetween($sart, $end);
-        $days = [];
-
-        foreach ($events as $event) {
-            $date = explode(' ', $event['started_at'])[0];
-            if (!isset($days[$date])) {
-                $days[$date] = [$event];
-            } else {
-                $days[$date][] = $event;
-            }
-        }
-
-        return $days;
+        return new \DateTime($this->started_at);
     }
 
     /**
-     * Recupere un event.
-     *
-     * @param int $id identifiant de l'event à recuperer
-     * @return array
+     * @param mixed $started_at
      */
-    public function find(int $id): array
+    public function setStartedAt(\DateTime $started_at): void
     {
-
+        $this->started_at = $started_at;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param mixed $id
+     */
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
 }

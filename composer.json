@@ -1,0 +1,16 @@
+{
+    "name": "mecodeboue/calendar",
+    "description": "Simple calendar system management.",
+    "authors": [
+        {
+            "name": "Abbah Anoh",
+            "email": "anohabbah@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Calendar\\": "src/Calendar"
+        }
+    },
+    "require": {}
+}
