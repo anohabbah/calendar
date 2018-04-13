@@ -29,6 +29,14 @@
     font-size: .8em;
 }
 
+.calendar__event {
+    font-size: .65em;
+}
+
+.calendar__table td.is-today {
+    background-color: #f3f3f3;
+}
+
 .calendar__othermonth .calendar__day {
     opacity: .3;
 }
@@ -50,6 +58,7 @@
     transition: transform .3s;
     box-shadow: 0 6px 10px 0 #0000001a, 0 1px 18px 0 #0000001a, 0 3px 5px -1px #0003;
 }
+
 .calendar__button:hover {
     text-decoration: none;
     color: #fff;

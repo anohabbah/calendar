@@ -15,13 +15,13 @@ render('header')
 ?>
 
 <div class="calendar">
-
-    <?php if (isset($_GET['success'])): ?>
-    <div class="alert alert-success">Event successfully created.</div>
-    <?php endif; ?>
-
     <div class="d-flex flex-row align-items-center justify-content-between">
         <h1><?= $month->toString(); ?></h1>
+
+        <?php if (isset($_GET['success'])): ?>
+            <div class="alert alert-success">Event successfully created.</div>
+        <?php endif; ?>
+
         <div class="mr-3">
             <a href="/?month=<?= $month->previousMonth()->month ?>&year=<?= $month->previousMonth()->year ?>"
                class="btn btn-primary">&lt;</a>
@@ -37,16 +37,17 @@ render('header')
                 foreach ($month->days as $k => $day):
                     $date = (clone $last_monday)->modify("+" . ($k + $i * 7) . " days");
                     $eventsForDay = $events[$date->format('Y-m-d')] ?? [];
+                    $isToday = date('Y-m-d') === $date->format('Y-m-d');
                     ?>
-                    <td<?= $month->withinMonth($date) ? '' : ' class="calendar__othermonth"' ?>>
+                    <td<?= $month->withinMonth($date) ? '' : ' class="calendar__othermonth"' ?><?= !$isToday ? '' : ' class="is-today"' ?>>
                         <?php if ($i === 0): ?>
                             <div class="calendar__weekday"><?= $day; ?></div>
                         <?php endif; ?>
-                        <div class="calendar__day"><?= $date->format('d'); ?></div>
+                        <a class="calendar__day" href="/add.php?date=<?= $date->format('Y-m-d'); ?>"><?= $date->format('d'); ?></a>
                         <?php foreach ($eventsForDay as $event): ?>
                             <div class="calendar__event">
                                 <?= (new DateTime($event['started_at']))->format('H:i') ?> -
-                                <a href="/event.php?id=<?= $event['id'] ?>"><?= h($event['name']) ?></a>
+                                <a href="/edit.php?id=<?= $event['id'] ?>"><?= h($event['name']) ?></a>
                             </div>
                         <?php endforeach; ?>
                     </td>

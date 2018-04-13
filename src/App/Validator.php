@@ -25,6 +25,11 @@ class Validator
 
     protected $errors = [];
 
+    public function __construct(array $data = [])
+    {
+        $this->data = $data;
+    }
+
     /**
      * @param array $data
      */
@@ -36,10 +41,11 @@ class Validator
 
     public function validate(string $field, string $rule, ...$parameters)
     {
-        if (!isset($this->data[$field]))
+        if (!isset($this->data[$field])) {
             $this->errors[$field] = "Le champ $field est obligatoire.";
-        else
-            call_user_func([$this, $rule], $field, ...$parameters);
+            return false;
+        } else
+            return call_user_func([$this, $rule], $field, ...$parameters);
     }
 
     public function min(string $field, int $length): bool
@@ -64,6 +70,11 @@ class Validator
         return $bool;
     }
 
+    /**
+     * Verirfie que $field est une heure valide.
+     * @param string $field
+     * @return bool
+     */
     public function time(string $field): bool
     {
         $bool = true;
@@ -75,6 +86,12 @@ class Validator
         return $bool;
     }
 
+    /**
+     * Vérifie $fiels et $needle sont des heures valides, et que $field est une heure qui precede le $needle.
+     * @param $field
+     * @param $needle
+     * @return bool
+     */
     public function before($field, $needle): bool
     {
         $bool = false;
@@ -93,10 +110,16 @@ class Validator
         return $bool;
     }
 
+    /**
+     * Exige que la variable passée en paramètre existe.
+     *
+     * @param string $field variable à vérifier.
+     * @return bool <code>true</code> si la variable existe et no vide, <code>false</code> sinon
+     */
     public function required($field)
     {
         $bool = true;
-        if (!isset($this->data[$field])) {
+        if (empty($this->data[$field])) {
             $bool = false;
             $this->errors[$field] = "Le champ $field est obligatoire.";
         }

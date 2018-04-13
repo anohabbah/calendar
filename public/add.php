@@ -17,9 +17,19 @@
  */
 
 require '../src/bootstrap.php';
-render('header', ['title' => 'Créer un évènement']);
 
 $errors = [];
+$data = [
+    'date' => $_GET['date'] ?? date('Y-m-d'),
+    'start' => date('H:i'),
+    'end' => date('H:i')
+];
+
+$validator = new \App\Validator($data);
+if (!$validator->validate('date', 'date')) {
+    $data['date'] = date('Y-m-d');
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = $_POST;
 
@@ -27,18 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $errors = $validator->validates($_POST);
 
     if (empty($errors)) {
-        $event = new \Calendar\Event();
-        $event->setName($data['name']);
-        $event->setDescription($data['description']);
-        $event->setStartedAt(DateTime::createFromFormat('Y-m-d H:i', $data['date'] . ' ' . $data['start'])->format('y-m-d H:i:s'));
-        $event->setEndedAt(DateTime::createFromFormat('Y-m-d H:i', $data['date'] . ' ' . $data['end'])->format('y-m-d H:i:s'));
         $model = new \Calendar\Events(get_pdo());
+        $event = $model->hydrate(new \Calendar\Event(), $data);
         $model->create($event);
 
         header('Location: /?success=1');
         exit();
     }
 }
+
+render('header', ['title' => 'Créer un évènement']);
 ?>
 
 <div class="container">
@@ -51,67 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form action="" method="post" class="form">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="name">Titre</label>
-                            <input type="text" id="name" name="name"
-                                   class="form-control<?= isset($errors['name']) ? ' is-invalid' : '' ?>" required
-                                   value="<?= isset($data['name']) ? h($data['name']) : ''; ?>">
-                            <?php if (isset($errors['name'])): ?>
-                                <p class="invalid-feedback"><?= ($errors['name']); ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="date">Date</label>
-                            <input type="date" id="date" name="date"
-                                   class="form-control<?= isset($errors['date']) ? ' is-invalid' : '' ?>" required
-                                   value="<?= isset($data['date']) ? h($data['date']) : ''; ?>">
-                            <?php if (isset($errors['date'])): ?>
-                                <p class="invalid-feedback"><?= ($errors['date']); ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="start">Heure de demarrage</label>
-                            <input type="time" id="start" name="start"
-                                   class="form-control<?= isset($errors['start']) ? ' is-invalid' : '' ?>"
-                                   placeholder="HH:MM" required value="<?= isset($data['start']) ? h($data['start']) : ''; ?>">
-                            <?php if (isset($errors['start'])): ?>
-                                <p class="invalid-feedback"><?= ($errors['start']); ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="end">Heure de fin</label>
-                            <input type="time" id="end" name="end"
-                                   class="form-control<?= isset($errors['end']) ? ' is-invalid' : '' ?>"
-                                   placeholder="HH:MM" required value="<?= isset($data['end']) ? h($data['end']) : ''; ?>">
-                            <?php if (isset($errors['end'])): ?>
-                                <p class="invalid-feedback"><?= ($errors['end']); ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description"
-                                      class="form-control<?= isset($errors['description']) ? ' is-invalid' : '' ?>"
-                                      required><?= isset($data['description']) ? h($data['description']) : ''; ?></textarea>
-                            <?php if (isset($errors['description'])): ?>
-                                <p class="invalid-feedback"><?= ($errors['description']); ?></p>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
+
+                <?php render('calendar/form', compact('errors', 'data')) ?>
 
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Créer</button>

@@ -111,6 +111,9 @@ class Event
         $this->id = $id;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         return [
