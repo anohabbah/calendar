@@ -25,14 +25,15 @@ class Events
     /**
      * Recupère tous les evenements entre 2 dates.
      *
-     * @param \DateTime $start date de debut
-     * @param \DateTime $end date de fin
+     * @param \DateTimeInterface $start date de debut
+     * @param \DateTimeInterface $end date de fin
      * @return array Un tabeau representant l'ensemble des evenements.
      */
-    public function getEventsBetween(\DateTime $start, \DateTime $end): array
+    public function getEventsBetween(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $sql = "SELECT * FROM events WHERE started_at BETWEEN '{$start->format('Y-m-d 00:00:00')}' AND '{$end->format('Y-m-d 23:59:59')}' ORDER BY started_at ASC";
         $stmt = $this->pdo->query($sql);
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, Event::class);
 
         return $stmt->fetchAll();
     }
@@ -40,17 +41,17 @@ class Events
     /**
      * Recupère tous les evenements entre 2 dates formaté par jour..
      *
-     * @param \DateTime $start
-     * @param \DateTime $end
-     * @return array
+     * @param \DateTimeInterface $start
+     * @param \DateTimeInterface $end
+     * @return array Event[]
      */
-    public function getEventsBetweenByDay(\DateTime $start, \DateTime $end): array
+    public function getEventsBetweenByDay(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         $events = $this->getEventsBetween($start, $end);
         $days = [];
 
         foreach ($events as $event) {
-            $date = explode(' ', $event['started_at'])[0];
+            $date = $event->getStartedAt()->format('Y-m-d');
             if (!isset($days[$date])) {
                 $days[$date] = [$event];
             } else {
@@ -81,22 +82,35 @@ class Events
         return $result;
     }
 
+    /**
+     * @param Event $event
+     * @param array $payload
+     * @return Event
+     */
     public function hydrate(Event $event, array $payload): Event
     {
         $event->setName($payload['name']);
         $event->setDescription($payload['description']);
-        $event->setStartedAt(\DateTime::createFromFormat('Y-m-d H:i', $payload['date'] . ' ' . $payload['start'])->format('y-m-d H:i:s'));
-        $event->setEndedAt(\DateTime::createFromFormat('Y-m-d H:i', $payload['date'] . ' ' . $payload['end'])->format('y-m-d H:i:s'));
+        $event->setStartedAt(\DateTimeImmutable::createFromFormat('Y-m-d H:i', $payload['date'] . ' ' . $payload['start'])->format('y-m-d H:i:s'));
+        $event->setEndedAt(\DateTimeImmutable::createFromFormat('Y-m-d H:i', $payload['date'] . ' ' . $payload['end'])->format('y-m-d H:i:s'));
 
         return $event;
     }
 
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function create(Event $event): bool
     {
         $stmt = $this->pdo->prepare('INSERT INTO events(name, description, started_at, ended_at) VALUES (:name, :description, :started_at, :ended_at)');
         return $stmt->execute($event->toArray());
     }
 
+    /**
+     * @param Event $event
+     * @return bool
+     */
     public function update(Event $event): bool
     {
         $stmt = $this->pdo->prepare('UPDATE events SET name = :name, description = :description,  started_at = :started_at, ended_at = :ended_at WHERE id = :id');

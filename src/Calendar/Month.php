@@ -48,30 +48,42 @@ class Month
     /**
      * Retourne le nombre de seamine dans le mois.
      * @return int
+     * @throws \Exception
      */
     public function getWeeks(): int
     {
         $start = $this->getStartingDay();
-        $end = (clone $start)->modify("+1 month -1 day");
+        $end = $start->modify("+1 month -1 day");
 
-        $weeks = intval($end->format('W')) - intval($start->format('W')) + 1;
+        $endWeek = intval($end->format('W'));
+        $startWeek = intval($start->format('W'));
+        if ($endWeek === 1)
+            $endWeek = intval($end->modify('-7 days')->format('W')) + 1;
+
+        $weeks = $endWeek - $startWeek + 1;
 
         if ($weeks < 0)
-            $weeks = intval($end->format('W'));
+            $weeks = $endWeek;
 
         return $weeks;
     }
 
     /**
      * Renvoie le premier jour du mois.
-     * @return \DateTime
+     * @return \DateTimeInterface
+     * @throws \Exception
      */
-    public function getStartingDay(): \DateTime
+    public function getStartingDay(): \DateTimeInterface
     {
-        return new \DateTime("{$this->year}-{$this->month}-01");
+        return new \DateTimeImmutable("{$this->year}-{$this->month}-01");
     }
 
-    public function withinMonth(\DateTime $date): bool
+    /**
+     * @param \DateTimeInterface $date
+     * @return bool
+     * @throws \Exception
+     */
+    public function withinMonth(\DateTimeInterface $date): bool
     {
         return $this->getStartingDay()->format('Y-m') === $date->format('Y-m');
     }

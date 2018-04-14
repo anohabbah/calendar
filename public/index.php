@@ -8,7 +8,7 @@ $events = new \Calendar\Events($pdo);
 $start = $month->getStartingDay();
 $weeks = $month->getWeeks();
 $last_monday = $start->format('N') === '1' ? $start : $start->modify("last monday");
-$end = (clone $start)->modify('+'. (6 + 7 * ($weeks - 1)) . ' days');
+$end = $start->modify('+'. (6 + 7 * ($weeks - 1)) . ' days');
 $events = $events->getEventsBetweenByDay($start, $end);
 
 render('header')
@@ -35,7 +35,7 @@ render('header')
             <tr>
                 <?php
                 foreach ($month->days as $k => $day):
-                    $date = (clone $last_monday)->modify("+" . ($k + $i * 7) . " days");
+                    $date = $last_monday->modify("+" . ($k + $i * 7) . " days");
                     $eventsForDay = $events[$date->format('Y-m-d')] ?? [];
                     $isToday = date('Y-m-d') === $date->format('Y-m-d');
                     ?>
@@ -46,8 +46,8 @@ render('header')
                         <a class="calendar__day" href="/add.php?date=<?= $date->format('Y-m-d'); ?>"><?= $date->format('d'); ?></a>
                         <?php foreach ($eventsForDay as $event): ?>
                             <div class="calendar__event">
-                                <?= (new DateTime($event['started_at']))->format('H:i') ?> -
-                                <a href="/edit.php?id=<?= $event['id'] ?>"><?= h($event['name']) ?></a>
+                                <?= $event->getStartedAt()->format('H:i') ?> -
+                                <a href="/edit.php?id=<?= $event->getId() ?>"><?= h($event->getName()) ?></a>
                             </div>
                         <?php endforeach; ?>
                     </td>

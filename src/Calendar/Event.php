@@ -34,9 +34,9 @@ class Event
     /**
      * @return mixed
      */
-    public function getEndedAt(): \DateTime
+    public function getEndedAt(): \DateTimeInterface
     {
-        return new \DateTime($this->ended_at);
+        return new \DateTimeImmutable($this->ended_at);
     }
 
     /**
@@ -50,9 +50,9 @@ class Event
     /**
      * @return mixed
      */
-    public function getStartedAt(): \DateTime
+    public function getStartedAt(): \DateTimeInterface
     {
-        return new \DateTime($this->started_at);
+        return new \DateTimeImmutable($this->started_at);
     }
 
     /**
